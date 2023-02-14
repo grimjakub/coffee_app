@@ -245,8 +245,12 @@ def stats():
     acidity = data["acidity_max"]
     bitterness = data["bitterness_max"]
     strong = data["strong_max"]
-    popisky=["Nejchutnější","Nejvíce kyselá","Nejvíce hořká", "Nejsilnější"]
-    statistiky=[taste,acidity,bitterness,strong]
+    taste_min=data["taste_min"]
+    acidity_min=data["acidity_min"]
+    bitterness_min=data["bitterness_min"]
+    strong_min=data["strong_min"]
+    popisky=["Nejchutnější","Nejvíce kyselá","Nejvíce hořká", "Nejsilnější","Nejméně chutná","Nejméně kyselá","Nejméně hořká","Nejméně silná"]
+    statistiky=[taste,acidity,bitterness,strong,taste_min,acidity_min,bitterness_min,strong_min]
     return render_template("statistics.html", statistiky=statistiky, popisky=popisky,delka_seznamu=len(popisky))
 
 
