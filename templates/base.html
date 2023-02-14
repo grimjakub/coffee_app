@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hodnocení kávy</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <!-- bootstrap and fontawesome -->
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/efdaec7388.js" crossorigin="anonymous"></script>
+    <link rel=icon
+          href="https://uxwing.com/wp-content/themes/uxwing/download/food-and-drinks/coffee-icon.png">
+</head>
+
+<body class="my-bg">
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Hodnocení</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active"><a href="{{ url_for('home')}}">Home</a></li>
+            {% if not current_user.is_authenticated: %}
+            <li><a href="{{ url_for('login')}}">Login</a></li>
+            <li><a href="{{ url_for('register')}}">Register</a></li>
+
+            {% endif %}
+            {% if current_user.is_authenticated: %}
+            <li><a href="{{ url_for('logout')}}">Logout</a></li>
+<!--            <li><a href="#">User: {{current_user.username}}</a></li>-->
+            {% endif %}
+            <li><a href="{{ url_for('stats')}}">Statistika</a></li>
+        </ul>
+        <ul class="nav navbar-nav">
+            <li class="active"><a href="{{ url_for('graph')}}">Graf</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!--search-->
+<div class="container ">
+    <h1 class="display-3" , style="text-align: center">Hodnocení kávy</h1>
+
+    <div class="jumbotron my-auto ">
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
+
+
+</body>
+
+</html>

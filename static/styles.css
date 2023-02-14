@@ -1,0 +1,21 @@
+.my-bg {
+  background: #ff9a9e;
+  background: #6f4e37;
+  /*background-image: url("https://assets.bonappetit.com/photos/5c366551f212512d0e6cefd0/16:9/w_2560%2Cc_limit/Basically-Coffee-0219-03.jpg");*/
+  /* Chrome 10-25, Safari 5.1-6 */
+  /* background: -webkit-linear-gradient(to right, rgba(255, 154, 158, 0.5), rgba(250, 208, 196, 0.5)); */
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  /* background: linear-gradient(to right, rgba(255, 154, 158, 0.5), rgba(250, 208, 196, 0.5)) */
+}
+
+.jumbotron {
+  background-color: #6f4e37;
+}
+
+.body {
+  background-color: #6f4e37;
+}
+
+.chart {
+  height: 700px;
+}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+
+            <h3>Ze získaných dat získáváme následující výsledky:</h3>
+
+            {% for i in range(delka_seznamu):%}
+            <h4>{{popisky[i]}} káva je: {{statistiky[i][0]}} zrnek kávy + {{statistiky[i][1]}}ml vody + {{statistiky[i][2]}}ml  čisté vody | {{statistiky[i][3]}}<i class="fa-solid fa-star"></i></h4>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
