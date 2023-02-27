@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="display-3">Změnit hodnocení vybrané kávy</h3>
+<div class=" my-auto">
+    <form action="" method="POST">
+        <!--            task name-->
+        <div class="form-group">
+            <table class="table">
+                <thead>
+                <tr>
+                    <!--                <th scope="col">#</th>-->
+                    <th scope="col">Uživatel</th>
+                    <th scope="col">Množství zrnek</th>
+                    <th scope="col">Voda přes kávu</th>
+                    <th scope="col">Čistá voda</th>
+                    <th scope="col">Kyselost</th>
+                    <th scope="col">Hořkost</th>
+                    <th scope="col">Síla</th>
+                    <th scope="col">Chuť</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+
+                <!--            for one row-->
+                <tr>
+                    <form method="post" action="/add">
+                        <td>{{stats[0]}}</td>
+                        <td>
+<!--                            <select id="amount_coffee" name="amount_coffee">-->
+<!--                                <option value=1>1</option>-->
+<!--                                <option value=2>2</option>-->
+<!--                                <option value=3>3</option>-->
+<!--                                <option value=4>4</option>-->
+<!--                                <option value=5>5</option>-->
+<!--                            </select> -->
+                             {{stats[1]}}
+                            <i class="fa-solid fa-mug-saucer"></i>
+
+                        </td>
+
+
+                        <td>
+<!--                            <select id="amount_water" name="amount_water">-->
+<!--                                <option value=25>25</option>-->
+<!--                                <option value=50>50</option>-->
+<!--                                <option value=75>75</option>-->
+<!--                                <option value=100>100</option>-->
+<!--                            </select>-->
+                            {{stats[2]}}
+                            <i class="fa-solid fa-droplet"></i>
+
+                        </td>
+                        <td>
+<!--                            <select id="amount_clean_water" name="amount_clean_water">-->
+<!--                                <option value=0>0</option>-->
+<!--                                <option value=25>25</option>-->
+<!--                                <option value=50>50</option>-->
+<!--                                <option value=75>75</option>-->
+<!--                                <option value=100>100</option>-->
+<!--                            </select>-->
+                            {{stats[3]}}
+                            <i class="fa-solid fa-droplet"></i>
+                        </td>
+                        <td>
+                            <select id="acidity" name="acidity">
+                                <option value=1>1</option>
+                                <option value=2>2</option>
+                                <option value=3>3</option>
+                                <option value=4>4</option>
+                                <option value=5>5</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select id="bitterness" name="bitterness">
+                                <option value=1>1</option>
+                                <option value=2>2</option>
+                                <option value=3>3</option>
+                                <option value=4>4</option>
+                                <option value=5>5</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select id="strong" name="strong">
+                                <option value=1>1</option>
+                                <option value=2>2</option>
+                                <option value=3>3</option>
+                                <option value=4>4</option>
+                                <option value=5>5</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-select" id="taste" name="taste">
+                                <option value=1>1</option>
+                                <option value=2>2</option>
+                                <option value=3>3</option>
+                                <option value=4>4</option>
+                                <option value=5>5</option>
+                            </select>
+                        </td>
+
+                        <td>
+
+                            <!--                <i class="fa-solid fa-circle-plus"></i></a>-->
+                        </td>
+                        <!--        </tr>-->
+
+                        <!--        &lt;!&ndash;end of row&ndash;&gt;-->
+                        <!--        <tr>-->
+                        <th>
+                        </th>
+                        <td>
+                            <input type="submit" value="Změnit hodnocení">
+                    </form>
+                    <!--                <a href="{{ url_for('add') }}"><i class="fa-solid fa-plus "></i></a>-->
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td><a href="{{ url_for('delete', id=coffee.id) }}"><i class="fa-solid fa-circle-minus "></i></a>
+<!--                    <td><a href="{{ url_for('delete', id=coffee.id) }}">Smazat</a>-->
+                    </td>
+                    <td><form>
+            <input class="btn btn-default" type="button" value="Zpět" onclick="history.go(-1)">
+        </form></td>
+                </tr>
+        </div>
+        {% endblock %}

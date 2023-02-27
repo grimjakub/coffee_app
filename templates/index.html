@@ -234,7 +234,8 @@
             </td>
             <td>
                 {% if coffee.name==current_user.username: %}
-                <a href="{{ url_for('delete', id=coffee.id) }}"><i class="fa-solid fa-circle-minus "></i></a>
+<!--                <a href="{{ url_for('delete', id=coffee.id) }}"><i class="fa-solid fa-circle-minus "></i></a>-->
+                <a href="{{ url_for('edit', id=coffee.id) }}"><i class="fa-solid fa-pen-to-square "></i></a>
                 {% else: %}
                 <i class="fa-solid fa-circle-minus "></i>
                 {% endif %}

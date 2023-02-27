@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def vytvor_graf(data, user, property):
+
     users = []
     for dictionary in data:
         if dictionary['user'] not in users:
@@ -15,15 +16,11 @@ def vytvor_graf(data, user, property):
 
     if user not in users:
         for dictionary in data:
-            if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] in [
-                vector[i][0:3] for i, element in enumerate(vector)]:
-                i = [vector[i][0:3] for i, element in enumerate(vector)].index(
-                    [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+            if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] in [vector[i][0:3] for i, element in enumerate(vector)]:
+                i = [vector[i][0:3] for i, element in enumerate(vector)].index([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
                 vector[i].append(dictionary[property])
             else:
-                vector.append(
-                    [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'],
-                     dictionary[property]])
+                vector.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'], dictionary[property]])
         for i, element in enumerate(vector):
             sub_vector = element[0:3]
             sub_vector.append(sum(element[3:]) / len(element[3:]))  # element[0:3]
@@ -31,9 +28,7 @@ def vytvor_graf(data, user, property):
     else:
         for dictionary in data:
             if dictionary['user'] == user:
-                vector.append(
-                    [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'],
-                     dictionary[property]])
+                vector.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'], dictionary[property]])
 
     vector = np.array(vector)
     # print(vector)
@@ -83,8 +78,7 @@ def vytvor_graf(data, user, property):
             for z in range(5):
                 if sum(f_coffee_fullness[y][z]) > 1:
                     f_coffee_yz_nonzero = [i for index, i in enumerate(f_coffee_yz[y][z]) if fullness[index][y][z]]
-                    f_coffee_property_nonzero = [i for index, i in enumerate(f_coffee_property[y][z]) if
-                                                 fullness[index][y][z]]
+                    f_coffee_property_nonzero = [i for index, i in enumerate(f_coffee_property[y][z]) if fullness[index][y][z]]
                     f_coffee[y][z] = CubicSpline(f_coffee_yz_nonzero, f_coffee_property_nonzero)
                     ax.plot(xs, f_coffee[y][z](xs))
                 elif sum(f_coffee_fullness[y][z]) == 1:
@@ -97,10 +91,8 @@ def vytvor_graf(data, user, property):
         for z in range(5):
             for x in range(5):
                 if sum(f_coffee_water_fullness[z][x]) > 1:
-                    f_coffee_water_zx_nonzero = [i for index, i in enumerate(f_coffee_water_zx[z][x]) if
-                                                 fullness[x][index][z]]
-                    f_coffee_water_property_nonzero = [i for index, i in enumerate(f_coffee_water_property[z][x]) if
-                                                       fullness[x][index][z]]
+                    f_coffee_water_zx_nonzero = [i for index, i in enumerate(f_coffee_water_zx[z][x]) if fullness[x][index][z]]
+                    f_coffee_water_property_nonzero = [i for index, i in enumerate(f_coffee_water_property[z][x]) if fullness[x][index][z]]
                     f_coffee_water[z][x] = CubicSpline(f_coffee_water_zx_nonzero, f_coffee_water_property_nonzero)
                     ax.plot(xs, f_coffee_water[z][x](xs))
                 elif sum(f_coffee_water_fullness[z][x]) == 1:
@@ -114,8 +106,7 @@ def vytvor_graf(data, user, property):
             for y in range(4):
                 if sum(f_water_fullness[x][y]) > 1:
                     f_water_xy_nonzero = [i for index, i in enumerate(f_water_xy[x][y]) if fullness[x][y][index]]
-                    f_water_property_nonzero = [i for index, i in enumerate(f_water_property[x][y]) if
-                                                fullness[x][y][index]]
+                    f_water_property_nonzero = [i for index, i in enumerate(f_water_property[x][y]) if fullness[x][y][index]]
                     f_water[x][y] = CubicSpline(f_water_xy_nonzero, f_water_property_nonzero)
                     ax.plot(xs, f_water[x][y](xs))
                 elif sum(f_water_fullness[x][y]) == 1:
@@ -129,10 +120,7 @@ def vytvor_graf(data, user, property):
             for y in range(4):
                 for z in range(5):
                     if (f_coffee_fullness[y][z][x] + f_coffee_water_fullness[z][x][y] + f_water_fullness[x][y][z]):
-                        property[x][y][z] = (f_coffee_property[y][z][x] + f_coffee_water_property[z][x][y] +
-                                             f_water_property[x][y][z]) / (
-                                                        f_coffee_fullness[y][z][x] + f_coffee_water_fullness[z][x][y] +
-                                                        f_water_fullness[x][y][z])
+                        property[x][y][z] = (f_coffee_property[y][z][x] + f_coffee_water_property[z][x][y] + f_water_property[x][y][z]) / (f_coffee_fullness[y][z][x] + f_coffee_water_fullness[z][x][y] + f_water_fullness[x][y][z])
                         fullness[x][y][z] = 1
 
     # plt.show()
@@ -157,29 +145,34 @@ def vytvor_graf(data, user, property):
     values = fn((X, Y, Z))
 
     fig = go.Figure()
-    fig.add_trace(
-        go.Volume(
-            x=X.flatten(),
-            y=Y.flatten(),
-            z=Z.flatten(),
-            value=values.flatten(),
-            isomin=1,
-            isomax=5,
-            opacity=0.3,
-            surface_count=10,
-            colorscale='blackbody'
+    for i in np.linspace(0, 40, 11):
+        fig.add_trace(
+            go.Isosurface(
+                x=X.flatten(),
+                y=Y.flatten(),
+                z=Z.flatten(),
+                value=values.flatten(),
+                isomin=i / 10 + 1,
+                opacity=i / 80,
+                caps=dict(x_show=False, y_show=False, z_show=False),
+                cmin=1,
+                cmax=5,
+                colorscale='blackbody',
+                hoverinfo='skip',
+            )
         )
+
+    fig.add_trace(go.Scatter3d(
+        x=[i[0] for i in vector], y=[i[1] for i in vector], z=[i[2] for i in vector],
+        mode='markers', marker=dict(color='black'), hovertemplate='Coffee: %{x}<br>Coffee water: %{y}<br>Water: %{z}<extra></extra>')
     )
-    fig.add_trace(
-        go.Scatter3d(x=[i[0] for i in vector], y=[i[1] for i in vector], z=[i[2] for i in vector], mode='markers'))
+
     fig.update_scenes(
-        xaxis=dict(range=[0.8, 5.2], nticks=5, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)",
-                   ticks='outside', title='Coffee'),
-        yaxis=dict(range=[21, 104], dtick=25, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)",
-                   ticks='outside', title='Coffee water'),
-        zaxis=dict(range=[-5, 105], dtick=25, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)",
-                   ticks='outside', title='Water'),
+        xaxis=dict(range=[0.8, 5.2], nticks=5, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)", ticks='outside', title='Coffee'),
+        yaxis=dict(range=[21, 104], dtick=25, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)", ticks='outside', title='Coffee water'),
+        zaxis=dict(range=[-5, 105], dtick=25, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)", ticks='outside', title='Water'),
     )
+
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#6f4e37")
 
     return fig

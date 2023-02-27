@@ -19,3 +19,40 @@
 .chart {
   height: 700px;
 }
+
+table tr td {
+  text-align: center;
+}
+
+h5 {
+  padding: 3px;
+}
+table th {
+  padding: 5px;
+}
+
+.coffee {
+  height: 1.3em;
+  padding-bottom: 0px;
+}
+
+.Stars {
+  --percent: calc(var(--rating) / 5 * 100%);
+
+  display: inline-block;
+  font-size: var(--star-size);
+  font-family: Times;
+  line-height: 1;
+
+  &::before {
+    content: "★★★★★";
+    letter-spacing: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--star-background) var(--percent),
+      var(--star-color) var(--percent)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}

@@ -8,20 +8,46 @@
 
             <h3>Ze získaných dat získáváme následující výsledky:</h3>
             <table rules=all>
-                {% for i in range(delka_seznamu):%}
-<!--                <h4>{{popisky[i]}} káva je: {{statistiky[i][0]}} zrnek kávy + {{statistiky[i][1]}}ml vody +-->
-<!--                    {{statistiky[i][2]}}ml čisté vody | {{statistiky[i][3]}}<i class="fa-solid fa-star"></i></h4>-->
-
                 <tr>
-
-                    <td><h4>{{popisky[i]}} káva je:</h4></td>
-                    <td><h4>{{statistiky[i][0]}} zrnek kávy</h4></td>
-                    <td><h4>{{statistiky[i][1]}}ml vody</h4></td>
-                    <td><h4>{{statistiky[i][2]}}ml čisté vody</h4></td>
-                    <td><h4>{{statistiky[i][3]}}<i class="fa-solid fa-star"></i></h4></td>
-
+                    <th></th>
+                    <th>Zrnka kávy</th>
+                    <th>Kávová voda [ml]</th>
+                    <th>Čistá voda [ml]</th>
+                    <th>Hodnocení</th>
                 </tr>
-                {% endfor %}
+            {% for i in range(delka_seznamu):%}
+                <!--                <h4>{{popisky[i]}} káva je: {{statistiky[i][0]}} zrnek kávy + {{statistiky[i][1]}}ml vody +-->
+                <!--                    {{statistiky[i][2]}}ml čisté vody | {{statistiky[i][3]}}<i class="fa-solid fa-star"></i></h4>-->
+                <tr>
+                    <td><h5>{{popisky[i]}} káva je:</h5></td>
+                    <td><h5>{{statistiky[i][0][0]}} <i class="fa-solid fa-mug-saucer"></i></h5></td>
+<!--                    <td> <h5>{{statistiky[i][0][0]}}<img src="https://www.svgrepo.com/show/493660/coffee-bean-filled-roast-brew.svg" class="coffee" ></h5></td>-->
+                    <td><h5>{{statistiky[i][0][1]}} <i class="fa-solid fa-droplet"></i></h5></td>
+                    <td><h5>{{statistiky[i][0][2]}} <i class="fa-solid fa-droplet"></i></h5></td>
+<!--                    <td><h5>{{statistiky[i][0][2]}}<img src="https://www.svgrepo.com/show/472583/droplet.svg" class="coffee" ></i></h5></td>-->
+                    <td><h5>{{statistiky[i][0][3]}} <i class="fa-solid fa-star"></i></h5></td>
+<!--                    {% for stat in statistiky[i] %}-->
+<!--                    <tr>-->
+<!--                <td></td>-->
+<!--                    <td><h5>{{stat[0]}} <i class="fa-solid fa-mug-saucer"></i></h5></td>-->
+<!--                    <td><h5>{{stat[1]}} <i class="fa-solid fa-droplet"></i></h5></td>-->
+<!--                    <td><h5>{{stat[2]}} <i class="fa-solid fa-droplet"></i></h5></td>-->
+<!--                    <td><h5>{{stat[3]}} <i class="fa-solid fa-star"></i></h5></td>-->
+<!--                </tr>-->
+<!--                    {%endfor%}-->
+                {% if statistiky[i]|length>1%}
+                    {% for y in range(1,statistiky[i]|length) %}
+                <tr>
+                    <td></td>
+                    <td><h5>{{statistiky[i][y][0]}} <i class="fa-solid fa-mug-saucer"></i></h5></td>
+                    <td><h5>{{statistiky[i][y][1]}} <i class="fa-solid fa-droplet"></i></h5></td>
+                    <td><h5>{{statistiky[i][y][2]}} <i class="fa-solid fa-droplet"></i></h5></td>
+                    <td><h5>{{statistiky[i][y][3]}} <i class="fa-solid fa-star"></i></h5></td>
+                </tr>
+                    {%endfor%}
+                {%endif%}
+                </tr>
+            {% endfor %}
 
 
             </table>

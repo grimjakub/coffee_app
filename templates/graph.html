@@ -5,14 +5,41 @@
 <!--<!doctype html>-->
 <!--<html>-->
 <!-- <body>-->
-  <h4>Dnes zkoumáme uživatele: {{user}} a parametr: {{param}}</h4>
-  <div id='chart' class='chart'”></div>
+<h4>Dnes zkoumáme uživatele: {{user}} a parametr: {{param}}</h4>
+
+<form method="post" action="/graph">
+    <td>
+        <select id="username" name="username">
+            <option value="all">Všichni</option>
+            {% for user in users%}
+            <option value={{user.username}}>{{user.username}}</option>
+            {%endfor%}
+
+        </select> <i class="fa-solid fa-mug-saucer"></i>
+    </td>
+        <td>
+        <select id="parametr" name="parametr">
+            <option value="acidity">Kyselost</option>
+            <option value="bitterness">Hořkost</option>
+            <option value="strong">Síla</option>
+            <option value="taste">Chuť</option>
+        </select> <i class="fa-solid fa-mug-saucer"></i>
+    </td>
+    <input type="submit" value="Filtrovat">
+</form>
+
+
+<div id='chart' class='chart' ”></div>
+
+
 <!--</body>-->
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 <script type='text/javascript'>
   var graphs = {{graphJSON | safe}};
   Plotly.plot('chart',graphs,{});
+
 </script>
+
 <!--</html>-->
 
 

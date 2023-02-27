@@ -2,10 +2,20 @@
 {% block content %}
 
 
+<div>
+    <a href="{{ url_for('login') }}">
+        <button class="w-100 btn btn-lg btn-primary">Login</button>
+    </a>
+    <a href="{{ url_for('register') }}">
+        <button class="w-100 btn btn-lg btn-primary">Register</button>
+    </a>
 
+</div>
 <div >
-<a href="{{ url_for('login') }}"><button class="w-100 btn btn-lg btn-primary">Login</button></a>
-<a href="{{ url_for('register') }}"><button class="w-100 btn btn-lg btn-primary">Register</button></a>
+    <p>Pojď s námi hodnotit různá nastavení kávovaru a najít tu nejvíce chutnou kávu.</p>
+    <p>Zajímá nás Lungo Barista - množství zrnek kávy, množství vody tekoucí přes kávu a čistou vodu dolitou do kávy</p>
+    <p>Ohodnotíš aciditu, hořkost, sílu a pak celkovou chuť</p>
+    <img src="https://sz-folien.de/wp-content/uploads/2020/11/art-nr.297-we-want-you.png" style="height:300px">
 </div>
 
 

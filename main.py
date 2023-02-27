@@ -49,15 +49,20 @@ with app.app_context():
 
 def random_coffee():
     name = current_user.username
-    while True:
-        coffee = random.choice([1, 2, 3, 4, 5])
-        water = random.choice([25, 50, 75, 100])
-        clean_water = random.choice([0, 25, 50, 75, 100])
-        random_combination = f"{name}-{coffee}-{water}-{clean_water}"
-        exist = bool(Coffee.query.filter_by(combination=random_combination).first())
-        if exist:
-            continue
-        break
+    db_data = local_data()
+    # while True:
+    #     coffee = random.choice([1, 2, 3, 4, 5])
+    #     water = random.choice([25, 50, 75, 100])
+    #     clean_water = random.choice([0, 25, 50, 75, 100])
+    #     random_combination = f"{name}-{coffee}-{water}-{clean_water}"
+    #     exist = bool(Coffee.query.filter_by(combination=random_combination).first())
+    #     if exist:
+    #         continue
+    #     break
+    random_choice = random_coffee_model(db_data, name)
+    coffee = random_choice[0]
+    water = random_choice[1]
+    clean_water = random_choice[2]
     if coffee == 1:
         random_coffee = f"Dnes doporučuji {coffee} zrnko kávy s {water} ml vody a {clean_water} ml čisté vody"
     elif coffee == 5:
@@ -65,6 +70,33 @@ def random_coffee():
     else:
         random_coffee = f"Dnes doporučuji {coffee} zrnka kávy s {water} ml vody a {clean_water} ml čisté vody"
     return random_coffee
+
+
+def random_coffee_model(data, user):
+    victor = []
+    for i in [1, 2, 3, 4, 5]:
+        for j in [25, 50, 75, 100]:
+            for k in [0, 25, 50, 75, 100]:
+                victor.append([i, j, k])
+    victor_all = victor.copy()
+    victor_mine = victor.copy()
+    for dictionary in data:
+        if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] in [
+            victor_all[i][0:3] for i, element in enumerate(victor_all)]:
+            victor_all.remove(
+                [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+        if dictionary['user'] == user and [dictionary['amount_coffee'], dictionary['amount_water'],
+                                           dictionary['amount_clean_water']] in [victor_mine[i][0:3] for i, element in
+                                                                                 enumerate(victor_mine)]:
+            victor_mine.remove(
+                [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+
+    if len(victor_all):
+        return random.choice(victor_all)
+    elif len(victor_mine):
+        return random.choice(victor_mine)
+    else:
+        return random.choice(victor)
 
 
 @app.route('/')
@@ -148,15 +180,6 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/delete')
-def delete():
-    coffee_id = request.args.get("id")
-    coffee_to_delete = Coffee.query.get(coffee_id)
-    db.session.delete(coffee_to_delete)
-    db.session.commit()
-    return redirect(url_for("home"))
-
-
 @app.route('/add', methods=["GET", "POST"])
 def add():
     amount_coffee = request.form.get("amount_coffee")
@@ -226,32 +249,53 @@ def format_dat(reviews):
     return output
 
 
-@app.route('/graph')
+@app.route('/graph', methods=["GET", "POST"])
 def graph():
+    db_data = local_data()
+    users = db.session.query(User).all()
+    if request.method == "POST":
+        user=request.form["username"]
+        param=request.form["parametr"]
+    ## parametry pro vytvoření grafu
+    else:
+        user = 'all'
+        param = 'taste'
+    ## vytvoreni grafu na web
+    fig = vytvor_graf(db_data, user, param)
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('graph.html', graphJSON=graphJSON, user=user, param=param,users=users)
+
+
+@app.route('/graph2')
+def graph2():
+    # print(user, param)
+    # print(type(user),type(param))
+
     ## parametry pro vytvoření grafu
     db_data = local_data()
     user = 'all'
-    property = 'taste'
+    param = 'taste'
     ## vytvoreni grafu na web
-    fig = vytvor_graf(db_data, user, property)
+    fig = vytvor_graf(db_data, user, param)
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('graph.html', graphJSON=graphJSON, user=user, param=property)
+    return render_template('graph.html', graphJSON=graphJSON, user=user, param=param)
 
 
 @app.route('/stats')
 def stats():
-    data=make_stats()
+    data = make_stats()
     taste = data["taste_max"]
     acidity = data["acidity_max"]
     bitterness = data["bitterness_max"]
     strong = data["strong_max"]
-    taste_min=data["taste_min"]
-    acidity_min=data["acidity_min"]
-    bitterness_min=data["bitterness_min"]
-    strong_min=data["strong_min"]
-    popisky=["Nejchutnější","Nejvíce kyselá","Nejvíce hořká", "Nejsilnější","Nejméně chutná","Nejméně kyselá","Nejméně hořká","Nejméně silná"]
-    statistiky=[taste,acidity,bitterness,strong,taste_min,acidity_min,bitterness_min,strong_min]
-    return render_template("statistics.html", statistiky=statistiky, popisky=popisky,delka_seznamu=len(popisky))
+    taste_min = data["taste_min"]
+    acidity_min = data["acidity_min"]
+    bitterness_min = data["bitterness_min"]
+    strong_min = data["strong_min"]
+    popisky = ["Nejchutnější", "Nejvíce kyselá", "Nejvíce hořká", "Nejsilnější", "Nejméně chutná", "Nejméně kyselá",
+               "Nejméně hořká", "Nejméně silná"]
+    statistiky = [taste, acidity, bitterness, strong, taste_min, acidity_min, bitterness_min, strong_min]
+    return render_template("statistics.html", statistiky=statistiky, popisky=popisky, delka_seznamu=len(popisky))
 
 
 def make_stats():
@@ -269,15 +313,55 @@ def make_stats():
                 vector.append(
                     [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'],
                      dictionary[property]])
+        victor = []
         for i, element in enumerate(vector):
-            sub_vector = element[0:3]
-            sub_vector.append(sum(element[3:]) / len(element[3:]))  # element[0:3]
-            vector[i] = sub_vector
-        output[property + '_min'] = sorted(vector, key=lambda x: x[-1])[0]
-        output[property + '_max'] = sorted(vector, key=lambda x: x[-1])[-1]
+            if len(element[3:]) > 1:
+                sub_vector = element[0:3]
+                sub_vector.append(round(sum(element[3:]) / len(element[3:]), 1))  # element[0:3]
+                victor.append(sub_vector)
+        output[property + '_min'] = [i for i in victor if i[-1] == min(victor, key=lambda x: x[-1])[-1]]
+        output[property + '_max'] = [i for i in victor if i[-1] == max(victor, key=lambda x: x[-1])[-1]]
 
     print(output)
     return output
+
+
+@app.route('/delete')
+def delete():
+    coffee_id = request.args.get("id")
+    coffee_to_delete = Coffee.query.get(coffee_id)
+    db.session.delete(coffee_to_delete)
+    db.session.commit()
+    return redirect(url_for("home"))
+
+# id = db.Column(db.Integer, primary_key=True)
+# user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+# name = db.Column(db.Integer, db.ForeignKey("users.username"))
+# combination = db.Column(db.String(60), unique=True, nullable=False)
+# amount_coffee = db.Column(db.Integer)  # 1-5 zrn kávy
+# amount_water = db.Column(db.Integer)  # 25-100ml po 25 krok
+# amount_clean_water = db.Column(db.Integer)  # 0-100ml po 25 krok
+# acidity = db.Column(db.Integer)
+# bitterness = db.Column(db.Integer)
+# strong = db.Column(db.Integer)
+# taste = db.Column(db.Integer)
+@app.route("/edit", methods=["GET", "POST"])
+def edit():
+    coffee_id = request.args.get("id")
+    coffee_selected = Coffee.query.get(coffee_id)
+    stats=[coffee_selected.name,coffee_selected.amount_coffee,coffee_selected.amount_water,coffee_selected.amount_clean_water]
+    print(stats)
+    if request.method == "POST":
+        coffee_to_update = coffee_selected
+        coffee_to_update.acidity = request.form["acidity"]
+        coffee_to_update.bitterness = request.form["bitterness"]
+        coffee_to_update.strong = request.form["strong"]
+        coffee_to_update.taste = request.form["taste"]
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template("edit.html", coffee=coffee_selected,
+                           current_user=current_user,stats=stats)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

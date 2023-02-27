@@ -31,10 +31,10 @@
 <!--            <li><a href="#">User: {{current_user.username}}</a></li>-->
             {% endif %}
             <li><a href="{{ url_for('stats')}}">Statistika</a></li>
+            <li><a href="{{ url_for('graph')}}">Graf</a></li>
+
         </ul>
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('graph')}}">Graf</a></li>
-        </ul>
+
     </div>
 </nav>
 
