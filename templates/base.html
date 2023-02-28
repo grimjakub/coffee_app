@@ -17,7 +17,7 @@
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">Hodnocení</a>
+            <a class="navbar-brand" href="{{ url_for('home')}}">Hodnocení</a>
         </div>
         <ul class="nav navbar-nav">
             <li class="active"><a href="{{ url_for('home')}}">Home</a></li>
@@ -31,7 +31,9 @@
 <!--            <li><a href="#">User: {{current_user.username}}</a></li>-->
             {% endif %}
             <li><a href="{{ url_for('stats')}}">Statistika</a></li>
-            <li><a href="{{ url_for('graph')}}">Graf</a></li>
+            <li><a href="{{ url_for('graph')}}">Graf 3D</a></li>
+            <li><a href="{{ url_for('graph2d')}}">Graf 2D</a></li>
+            <li><a href="{{ url_for('forum')}}">Diskuze</a></li>
 
         </ul>
 

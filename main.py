@@ -4,7 +4,10 @@ from flask_login import UserMixin, login_user, LoginManager, current_user, logou
 import random
 import json
 import plotly
+from datetime import datetime
 from Coffee import vytvor_graf
+from Coffee_2D import vytvor_graf_2D
+from Coffee_United import *
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///coffee.db'
@@ -43,6 +46,14 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(60), nullable=False)
 
 
+class Comment(UserMixin, db.Model):
+    __tablename__ = "comments"
+    id = db.Column(db.Integer, primary_key=True)
+    user_comment = db.Column(db.String(20), nullable=False)
+    comment = db.Column(db.String(500), nullable=False)
+    time = db.Column(db.String(100), nullable=False)
+
+
 with app.app_context():
     db.create_all()
 
@@ -50,15 +61,6 @@ with app.app_context():
 def random_coffee():
     name = current_user.username
     db_data = local_data()
-    # while True:
-    #     coffee = random.choice([1, 2, 3, 4, 5])
-    #     water = random.choice([25, 50, 75, 100])
-    #     clean_water = random.choice([0, 25, 50, 75, 100])
-    #     random_combination = f"{name}-{coffee}-{water}-{clean_water}"
-    #     exist = bool(Coffee.query.filter_by(combination=random_combination).first())
-    #     if exist:
-    #         continue
-    #     break
     random_choice = random_coffee_model(db_data, name)
     coffee = random_choice[0]
     water = random_choice[1]
@@ -106,7 +108,6 @@ def home():
                                current_user=current_user)
     all_coffee = db.session.query(Coffee).filter(
         Coffee.name.like(current_user.username))
-    # all_coffee = db.session.query(Coffee).all()
     users = db.session.query(User).all()
     coffee = random_coffee()
     return render_template("index.html", coffees=all_coffee, current_user=current_user, users=users,
@@ -136,9 +137,6 @@ def show_amount():
         else:
             filter_coffees = db.session.query(Coffee).filter(
                 Coffee.amount_coffee.like(f"%{amount_coffee}%"))
-    # all_coffee = db.session.query(Coffee).all()
-    # coffees = [coffee for coffee in all_coffee if coffee.amount_coffee == 1]
-    print(amount_coffee)
     return render_template("index.html", coffees=filter_coffees)
 
 
@@ -254,8 +252,8 @@ def graph():
     db_data = local_data()
     users = db.session.query(User).all()
     if request.method == "POST":
-        user=request.form["username"]
-        param=request.form["parametr"]
+        user = request.form["username"]
+        param = request.form["parametr"]
     ## parametry pro vytvoření grafu
     else:
         user = 'all'
@@ -263,22 +261,34 @@ def graph():
     ## vytvoreni grafu na web
     fig = vytvor_graf(db_data, user, param)
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('graph.html', graphJSON=graphJSON, user=user, param=param,users=users)
+    return render_template('graph.html', graphJSON=graphJSON, user=user, param=param, users=users)
 
 
-@app.route('/graph2')
-def graph2():
-    # print(user, param)
-    # print(type(user),type(param))
-
+@app.route('/graph2d', methods=["GET", "POST"])
+def graph2d():
     ## parametry pro vytvoření grafu
     db_data = local_data()
     user = 'all'
     param = 'taste'
     ## vytvoreni grafu na web
-    fig = vytvor_graf(db_data, user, param)
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('graph.html', graphJSON=graphJSON, user=user, param=param)
+    if request.method == "POST":
+        amount_coffee = int(request.form.get("amount_coffee"))
+        amount_water = int(request.form.get("amount_water"))
+        amount_clean_water = int(request.form.get("amount_clean_water"))
+    else:
+        amount_coffee = 3
+        amount_water = 50
+        amount_clean_water = 50
+    info = [amount_coffee, amount_water, amount_clean_water]
+    fig = vytvor_graf_2D(db_data, user, param, 3, 50, 50)
+    graphJSON1 = json.dumps(fig[0], cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON2 = json.dumps(fig[1], cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON3 = json.dumps(fig[2], cls=plotly.utils.PlotlyJSONEncoder)
+    # graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('graph2d.html', graphJSON=[graphJSON1, graphJSON2, graphJSON3], user=user, param=param,
+                           info=info)
+    # info=[coffee]
+    # return render_template('graph2d.html', graphJSON=graphJSON, user=user, param=param,info=info)
 
 
 @app.route('/stats')
@@ -334,22 +344,22 @@ def delete():
     db.session.commit()
     return redirect(url_for("home"))
 
-# id = db.Column(db.Integer, primary_key=True)
-# user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-# name = db.Column(db.Integer, db.ForeignKey("users.username"))
-# combination = db.Column(db.String(60), unique=True, nullable=False)
-# amount_coffee = db.Column(db.Integer)  # 1-5 zrn kávy
-# amount_water = db.Column(db.Integer)  # 25-100ml po 25 krok
-# amount_clean_water = db.Column(db.Integer)  # 0-100ml po 25 krok
-# acidity = db.Column(db.Integer)
-# bitterness = db.Column(db.Integer)
-# strong = db.Column(db.Integer)
-# taste = db.Column(db.Integer)
+
+@app.route('/delete-comment')
+def delete_comment():
+    comment_id = request.args.get("id")
+    comment_to_delete = Comment.query.get(comment_id)
+    db.session.delete(comment_to_delete)
+    db.session.commit()
+    return redirect(url_for("forum"))
+
+
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
     coffee_id = request.args.get("id")
     coffee_selected = Coffee.query.get(coffee_id)
-    stats=[coffee_selected.name,coffee_selected.amount_coffee,coffee_selected.amount_water,coffee_selected.amount_clean_water]
+    stats = [coffee_selected.name, coffee_selected.amount_coffee, coffee_selected.amount_water,
+             coffee_selected.amount_clean_water]
     print(stats)
     if request.method == "POST":
         coffee_to_update = coffee_selected
@@ -360,7 +370,22 @@ def edit():
         db.session.commit()
         return redirect(url_for('home'))
     return render_template("edit.html", coffee=coffee_selected,
-                           current_user=current_user,stats=stats)
+                           current_user=current_user, stats=stats)
+
+
+@app.route('/forum', methods=["GET", "POST"])
+def forum():
+    if request.method == "POST":
+        new_comment = Comment(
+            user_comment=current_user.username,
+            comment=request.form["komentar"],
+            time=datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+        )
+        db.session.add(new_comment)
+        db.session.commit()
+        return redirect(url_for('forum'))
+    comments = db.session.query(Comment).all()
+    return render_template("forum.html", comments=comments)
 
 
 if __name__ == '__main__':

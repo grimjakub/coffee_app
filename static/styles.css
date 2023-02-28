@@ -19,6 +19,9 @@
 .chart {
   height: 700px;
 }
+.chart2d {
+  height: 500px;
+}
 
 table tr td {
   text-align: center;

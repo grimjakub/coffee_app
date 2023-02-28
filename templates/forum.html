@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<!--<!doctype html>-->
+<!--<html>-->
+<!-- <body>-->
+<h4>Přidej komentář</h4>
+
+<table class="table">
+    <thead>
+    <tr>
+        <!--                <th scope="col">#</th>-->
+        <th scope="col">Uživatel</th>
+        <th scope="col">Čas</th>
+        <th scope="col">Komentář</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    <!--    <tr>-->
+    <!--        <form method="post" action="/forum">-->
+    <!--        <td></td>-->
+    <!--        <td></td>-->
+    <!--        <td><input></td>-->
+    <!--        <td><input type="submit" value="Přidat komentář"></td>-->
+
+    <!--        </form>-->
+    <!--    </tr>-->
+
+    {% for comment in comments %}
+    <tr>
+<td>
+            {{comment.user_comment}}
+        </td>
+        <td>
+            {{comment.time}}
+        </td>
+        <td>
+            {{comment.comment}}
+        </td>
+        <td>
+            {% if comment.user_comment==current_user.username: %}
+                <a href="{{ url_for('delete_comment', id=comment.id) }}"><i class="fa-solid fa-circle-minus "></i></a>
+
+                {% endif %}
+        </td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+
+<!--<form method="post" action="/forum">-->
+<form method="post" action="/forum" style="width:100%">
+
+    <td ><input type="text" name="komentar" id="komentar"></td>
+    <td><input type="submit" value="Přidat komentář"></td>
+</form>
+<!--</html>-->
+
+
+{% endblock %}
