@@ -5,31 +5,31 @@
                 <td></td>
                 <td>
                     <select id="amount_coffee" name="amount_coffee">
-                        <option value=1>1 zrnko</option>
-                        <option value=2>2 zrnka</option>
-                        <option value=3>3 zrnka</option>
-                        <option value=4>4 zrnka</option>
-                        <option value=5>5 zrnek</option>
+                        <option value=0>1 zrnko</option>
+                        <option value=1>2 zrnka</option>
+                        <option value=2>3 zrnka</option>
+                        <option value=3>4 zrnka</option>
+                        <option value=4>5 zrnek</option>
                     </select> <i class="fa-solid fa-mug-saucer"></i>
                 </td>
 
 
                 <td>
                     <select id="amount_water" name="amount_water">
-                        <option value=25>25 ml kávy</option>
-                        <option value=50>50 ml kávy</option>
-                        <option value=75>75 ml kávy</option>
-                        <option value=100>100 ml kávy</option>
+                        <option value=0>25 ml kávy</option>
+                        <option value=1>50 ml kávy</option>
+                        <option value=2>75 ml kávy</option>
+                        <option value=3>100 ml kávy</option>
                     </select>
                     <i class="fa-solid fa-droplet"></i>
                 </td>
                 <td>
                     <select id="amount_clean_water" name="amount_clean_water">
                         <option value=0>0 ml vody</option>
-                        <option value=25>25 ml vody</option>
-                        <option value=50>50 ml vody</option>
-                        <option value=75>75 ml vody</option>
-                        <option value=100>100 ml vody</option>
+                        <option value=1>25 ml vody</option>
+                        <option value=2>50 ml vody</option>
+                        <option value=3>75 ml vody</option>
+                        <option value=4>100 ml vody</option>
                     </select>
                     <i class="fa-solid fa-droplet"></i>
                 </td>
@@ -40,7 +40,7 @@
 
 
 
-<h3>Graf podle množství zrnek kávy - {{info[0]}}</h3>
+<h3>Graf podle množství zrnek kávy - {{info_param[0][info[0]]}}</h3>
 <!--<form method="POST" action="/graph2d">-->
 <!--    <div>-->
 <!--        <input type="range" min="1" max="5" name="value_slider" oninput="rangeValue.innerText = this.value"/>-->
@@ -49,9 +49,9 @@
 <!--    </div>-->
 <!--</form>-->
 <div id='chart' class='chart2d' ”></div>
-<h3>Graf podle množství kávové vody - {{info[1]}} ml</h3>
+<h3>Graf podle množství kávové vody - {{info_param[1][info[1]]}} ml</h3>
 <div id='chart2' class='chart2d' ”></div>
-<h3>Graf podle množství čisté vody - {{info[2]}} ml</h3>
+<h3>Graf podle množství čisté vody - {{info_param[2][info[2]]}} ml</h3>
 <div id='chart3' class='chart2d' ”></div>
 
 

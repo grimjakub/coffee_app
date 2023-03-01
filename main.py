@@ -5,8 +5,6 @@ import random
 import json
 import plotly
 from datetime import datetime
-from Coffee import vytvor_graf
-from Coffee_2D import vytvor_graf_2D
 from Coffee_United import *
 
 app = Flask(__name__)
@@ -37,6 +35,7 @@ class Coffee(db.Model):
     bitterness = db.Column(db.Integer)
     strong = db.Column(db.Integer)
     taste = db.Column(db.Integer)
+    # attempt = db.Column(db.Integer)
 
 
 class User(UserMixin, db.Model):
@@ -110,8 +109,28 @@ def home():
         Coffee.name.like(current_user.username))
     users = db.session.query(User).all()
     coffee = random_coffee()
+    stat = number_of_review(all_coffee)
     return render_template("index.html", coffees=all_coffee, current_user=current_user, users=users,
-                           random_coffee=coffee)
+                           random_coffee=coffee, stat=stat)
+
+
+def number_of_review(stats):
+    number = stats.count()
+    skill = "začátečník"
+    all_reviews = db.session.query(Coffee)
+    number_of_all = all_reviews.count()
+    if number < 10:
+        skill = "začátečník v hodnocení"
+    elif number < 30:
+        skill = "průměrný znalec káv"
+    elif number < 50:
+        skill = "pokročilý znalec káv"
+    elif number < 80:
+        skill = "odborník na kávu"
+    elif number > 99:
+        skill = "nejvyšší mistr ve světě kávy a tvá slova o kávě jsou všemocná"
+
+    return f"Máš již ohodnoceno {number} káv a jsi {skill}. Celkem ohodnoceno {number_of_all} káv"
 
 
 @app.route('/search', methods=["GET", "POST"])
@@ -189,7 +208,14 @@ def add():
     taste = request.form.get("taste")
     name = current_user.username
     combination = f"{name}-{amount_coffee}-{amount_water}-{amount_clean_water}"
-
+    attempt = 1
+    while db.session.query(Coffee).filter_by(combination=combination).first() is not None:
+        attempt += 1
+        combination = f"{name}-{amount_coffee}-{amount_water}-{amount_clean_water}-{attempt}"
+        # print("A")
+        continue
+    # print(combination)
+    # return redirect(url_for("home"))
     new_review = Coffee(
         amount_coffee=amount_coffee,
         amount_water=amount_water,
@@ -242,7 +268,7 @@ def format_dat(reviews):
     output = [{"user": coffee.name, "amount_coffee": coffee.amount_coffee, "amount_water": coffee.amount_water,
                "amount_clean_water": coffee.amount_clean_water, "acidity": coffee.acidity,
                "bitterness": coffee.bitterness,
-               "strong": coffee.strong, "taste": coffee.taste} for
+               "strong": coffee.strong, "taste": coffee.taste, "combination": coffee.combination} for
               coffee in reviews]
     return output
 
@@ -259,7 +285,7 @@ def graph():
         user = 'all'
         param = 'taste'
     ## vytvoreni grafu na web
-    fig = vytvor_graf(db_data, user, param)
+    fig = Graph_3D(db_data, user, param)
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('graph.html', graphJSON=graphJSON, user=user, param=param, users=users)
 
@@ -272,21 +298,25 @@ def graph2d():
     param = 'taste'
     ## vytvoreni grafu na web
     if request.method == "POST":
-        amount_coffee = int(request.form.get("amount_coffee"))
-        amount_water = int(request.form.get("amount_water"))
-        amount_clean_water = int(request.form.get("amount_clean_water"))
+        index_coffee = int(request.form.get("amount_coffee"))
+        index_water = int(request.form.get("amount_water"))
+        index_clean_water = int(request.form.get("amount_clean_water"))
     else:
-        amount_coffee = 3
-        amount_water = 50
-        amount_clean_water = 50
-    info = [amount_coffee, amount_water, amount_clean_water]
-    fig = vytvor_graf_2D(db_data, user, param, 3, 50, 50)
-    graphJSON1 = json.dumps(fig[0], cls=plotly.utils.PlotlyJSONEncoder)
-    graphJSON2 = json.dumps(fig[1], cls=plotly.utils.PlotlyJSONEncoder)
-    graphJSON3 = json.dumps(fig[2], cls=plotly.utils.PlotlyJSONEncoder)
+        index_coffee = 3
+        index_water = 2
+        index_clean_water = 2
+    info = [index_coffee, index_water, index_clean_water]
+    info_param = [[1,2,3,4,5], [25,50,75,100], [0,25,50,75,100]]
+    # fig = vytvor_graf_2D(db_data, user, param, 3, 50, 50)
+    fig1 = Graph_2D_Coffee(db_data, user, param)
+    fig2 = Graph_2D_Coffee_water(db_data, user, param)
+    fig3 = Graph_2D_Water(db_data, user, param)
+    graphJSON1 = json.dumps(fig1[index_coffee], cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON2 = json.dumps(fig2[index_water], cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON3 = json.dumps(fig3[index_clean_water], cls=plotly.utils.PlotlyJSONEncoder)
     # graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('graph2d.html', graphJSON=[graphJSON1, graphJSON2, graphJSON3], user=user, param=param,
-                           info=info)
+                           info=info,info_param=info_param)
     # info=[coffee]
     # return render_template('graph2d.html', graphJSON=graphJSON, user=user, param=param,info=info)
 
