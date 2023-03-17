@@ -109,28 +109,43 @@ def home():
         Coffee.name.like(current_user.username))
     users = db.session.query(User).all()
     coffee = random_coffee()
-    stat = number_of_review(all_coffee)
+    stat = number_of_review(all_coffee)[0]
+
     return render_template("index.html", coffees=all_coffee, current_user=current_user, users=users,
                            random_coffee=coffee, stat=stat)
 
 
 def number_of_review(stats):
     number = stats.count()
+    unique = Unique(local_data(), current_user.username)
     skill = "začátečník"
     all_reviews = db.session.query(Coffee)
     number_of_all = all_reviews.count()
-    if number < 10:
+    if number < 1:
+        skill = "noob ohledně kávy"
+    elif number < 2:
+        skill = "úplný začátečník v hodnocení"
+    elif number < 10:
         skill = "začátečník v hodnocení"
+    elif number < 20:
+        skill = "podprůměrný znalec káv"
     elif number < 30:
         skill = "průměrný znalec káv"
+    elif number < 40:
+        skill = "lehce pokročilý znalec káv"
     elif number < 50:
         skill = "pokročilý znalec káv"
+    elif number < 60:
+        skill = "více než pokročilý znalec káv"
+    elif number < 70:
+        skill = "dokonce nadpokročilý znalec káv"
     elif number < 80:
         skill = "odborník na kávu"
     elif number > 99:
         skill = "nejvyšší mistr ve světě kávy a tvá slova o kávě jsou všemocná"
-
-    return f"Máš již ohodnoceno {number} káv a jsi {skill}. Celkem ohodnoceno {number_of_all} káv"
+    uvodni_text = f"Máš již ohodnoceno {number} káv a jsi {skill}. Z toho {unique} unikátních káv. Celkem ohodnoceno {number_of_all} káv všemi uživateli"
+    output = [uvodni_text, number, skill, unique]
+    return output
 
 
 @app.route('/search', methods=["GET", "POST"])
@@ -306,7 +321,7 @@ def graph2d():
         index_water = 2
         index_clean_water = 2
     info = [index_coffee, index_water, index_clean_water]
-    info_param = [[1,2,3,4,5], [25,50,75,100], [0,25,50,75,100]]
+    info_param = [[1, 2, 3, 4, 5], [25, 50, 75, 100], [0, 25, 50, 75, 100]]
     # fig = vytvor_graf_2D(db_data, user, param, 3, 50, 50)
     fig1 = Graph_2D_Coffee(db_data, user, param)
     fig2 = Graph_2D_Coffee_water(db_data, user, param)
@@ -316,7 +331,7 @@ def graph2d():
     graphJSON3 = json.dumps(fig3[index_clean_water], cls=plotly.utils.PlotlyJSONEncoder)
     # graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('graph2d.html', graphJSON=[graphJSON1, graphJSON2, graphJSON3], user=user, param=param,
-                           info=info,info_param=info_param)
+                           info=info, info_param=info_param)
     # info=[coffee]
     # return render_template('graph2d.html', graphJSON=graphJSON, user=user, param=param,info=info)
 
@@ -364,6 +379,19 @@ def make_stats():
 
     print(output)
     return output
+
+
+@app.route('/profil')
+def profil():
+    your_coffee = db.session.query(Coffee).filter(
+        Coffee.name.like(current_user.username))
+    your_stats = number_of_review(your_coffee)
+    pocet_tvych_hodnoceni = your_stats[1]
+    pocet_tvych_uniq_hodn = your_stats[3]
+    tvoje_uroven = your_stats[2]
+
+    statistiky = [pocet_tvych_hodnoceni, pocet_tvych_uniq_hodn, tvoje_uroven]
+    return render_template("profil.html", statistiky=statistiky)
 
 
 @app.route('/delete')

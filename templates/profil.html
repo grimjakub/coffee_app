@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row">
+    <div class="column">
+        <div>
+            <h3>Tvoje osobní statistika:</h3>
+            <h4>Máš již vypito {{statistiky[0]}} káv</h4>
+            <h4>Z toho máš unikátních {{statistiky[1]}} káv</h4>
+
+
+        </div>
+    </div>
+    <div class="column">
+        <!--odznak-->
+        <div class="badge" data-progress="{{statistiky[0]}}" style="--progress: {{statistiky[0]*3.6}}deg;">
+            {{statistiky[0]}}
+        </div>
+        <h4>Jsi {{statistiky[2]}}</h4>
+    </div>
+</div>
+
+
+{% endblock %}

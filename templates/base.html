@@ -31,8 +31,10 @@
             <li><a href="{{ url_for('graph')}}">Graf 3D</a></li>
             <li><a href="{{ url_for('graph2d')}}">Graf 2D</a></li>
             <li><a href="{{ url_for('forum')}}">Diskuze</a></li>
+
+            <li><a href="{{ url_for('profil')}}">Profil</a></li>
             {% if current_user.is_authenticated: %}
-            <li><a href="{{ url_for('logout')}}">Logout</a></li>
+            <li style="padding-left:50px"><a href="{{ url_for('logout')}}">Logout</a></li>
             <!--            <li><a href="#">User: {{current_user.username}}</a></li>-->
             {% endif %}
         </ul>

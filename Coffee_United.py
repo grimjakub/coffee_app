@@ -10,33 +10,41 @@ def Values(db_data, user, prop):
 		if dictionary['user'] not in users:
 			users.append(dictionary['user'])
 
-	vector = []
-
-	if user not in users:
-		for dictionary in db_data:
-			if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] in [vector[i][0:3] for i, element in enumerate(vector)]:
-				i = [vector[i][0:3] for i, element in enumerate(vector)].index([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
-				vector[i].append(dictionary[prop])
-			else:
-				vector.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'], dictionary[prop]])
-		for i, element in enumerate(vector):
+	vector = [[] for _ in users]
+	for dictionary in db_data:
+		if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] in [vector[users.index(dictionary['user'])][i][0:3] for i, _ in enumerate(vector[users.index(dictionary['user'])])]:
+			i = [vector[users.index(dictionary['user'])][i][0:3] for i, _ in enumerate(vector[users.index(dictionary['user'])])].index([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+			vector[users.index(dictionary['user'])][i].append(dictionary[prop])
+		else:
+			vector[users.index(dictionary['user'])].append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'], dictionary[prop]])
+	for p, _ in enumerate(users):
+		for i, element in enumerate(vector[p]):
 			sub_vector = element[0:3]
-			sub_vector.append(sum(element[3:]) / len(element[3:]))  # element[0:3]
-			vector[i] = sub_vector
-	else:
-		for dictionary in db_data:
-			if dictionary['user'] == user:
-				if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] in [vector[i][0:3] for i, element in enumerate(vector)]:
-					i = [vector[i][0:3] for i, element in enumerate(vector)].index([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
-					vector[i].append(dictionary[prop])
-				else:
-					vector.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'], dictionary[prop]])
-			for i, element in enumerate(vector):
-				sub_vector = element[0:3]
-				sub_vector.append(sum(element[3:]) / len(element[3:]))  # element[0:3]
-				vector[i] = sub_vector
+			sub_vector.append(sum(element[3:]) / len(element[3:]))
+			vector[p][i] = sub_vector
 
-	vector = np.array(vector)
+	victor = []
+	for p, _ in enumerate(users):
+		for i, element in enumerate(vector[p]):
+			if element[0:3] in [i[0:3] for i in victor]:
+				index = [i[0:3] for i in victor].index(element[0:3])
+				victor[index].append(element[3])
+			else:
+				victor.append(element.copy())
+
+	for i, element in enumerate(victor):
+		sub_vector = element[0:3]
+		sub_vector.append(sum(element[3:]) / len(element[3:]))
+		victor[i] = sub_vector
+
+	if user in users:
+		vector = np.array(vector[users.index(user)])
+	else:
+		vector = np.array(victor)
+
+	# print(f'Total coffees: {len(db_data)}')
+	# print(f'Total unique coffees: {len(victor)}')
+
 
 	# initialize 3D property and fullness
 	prop = [[list(np.zeros(5)) for _ in range(4)] for _ in range(5)]
@@ -138,6 +146,24 @@ def Values(db_data, user, prop):
 	values = fn((X, Y, Z))
 
 	return [values, X, Y, Z, vector, x_values, y_values, z_values]
+
+
+def Unique(db_data, user):
+	users = []
+	for dictionary in db_data:
+		if dictionary['user'] not in users:
+			users.append(dictionary['user'])
+
+	unique = []
+	if user in users:
+		for dictionary in db_data:
+			if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] not in unique and dictionary['user'] == user:
+				unique.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+	else:
+		for dictionary in db_data:
+			if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] not in unique:
+				unique.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+	return len(unique)
 
 
 def Graph_3D(db_data, user, prop):

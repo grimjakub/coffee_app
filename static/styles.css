@@ -38,24 +38,40 @@ table th {
   height: 1.3em;
   padding-bottom: 0px;
 }
+div .badge {
+  display: flex;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: conic-gradient(#ffd700 var(--progress), gray 0deg);
+  font-size: 0;
+  text-align: center;
+}
 
-.Stars {
-  --percent: calc(var(--rating) / 5 * 100%);
+div .badge::after {
+  /* content: attr(data-progress) "%"; */
+  content: attr(data-progress);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  margin: 10px;
+  border-radius: 50%;
+  background: white;
+  font-size: 20px;
+  text-align: center;
+  color: #020101;
+  /* background-image: url("https://www.pngmart.com/files/14/Silver-Golden-Badge-Transparent-PNG.png"); */
+}
 
-  display: inline-block;
-  font-size: var(--star-size);
-  font-family: Times;
-  line-height: 1;
+.column {
+  float: left;
+  width: 50%;
+}
 
-  &::before {
-    content: "★★★★★";
-    letter-spacing: 3px;
-    background: linear-gradient(
-      90deg,
-      var(--star-background) var(--percent),
-      var(--star-color) var(--percent)
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
 }
