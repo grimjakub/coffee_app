@@ -35,6 +35,7 @@ class Coffee(db.Model):
     bitterness = db.Column(db.Integer)
     strong = db.Column(db.Integer)
     taste = db.Column(db.Integer)
+    # date = db.Column(db.String(50))
     # attempt = db.Column(db.Integer)
 
 
@@ -121,28 +122,34 @@ def number_of_review(stats):
     skill = "začátečník"
     all_reviews = db.session.query(Coffee)
     number_of_all = all_reviews.count()
-    if number < 1:
-        skill = "noob ohledně kávy"
-    elif number < 2:
-        skill = "úplný začátečník v hodnocení"
-    elif number < 10:
-        skill = "začátečník v hodnocení"
-    elif number < 20:
-        skill = "podprůměrný znalec káv"
-    elif number < 30:
-        skill = "průměrný znalec káv"
-    elif number < 40:
-        skill = "lehce pokročilý znalec káv"
-    elif number < 50:
-        skill = "pokročilý znalec káv"
-    elif number < 60:
-        skill = "více než pokročilý znalec káv"
-    elif number < 70:
-        skill = "dokonce nadpokročilý znalec káv"
-    elif number < 80:
-        skill = "odborník na kávu"
-    elif number > 99:
-        skill = "nejvyšší mistr ve světě kávy a tvá slova o kávě jsou všemocná"
+    skills = ["noob ohledně kávy",
+              "úplný začátečník v hodnocení",
+              "začátečník v hodnocení",
+              "pokročilý začátečník v hodnocení",
+              "podprůměrný znalec káv",
+              "průměrný znalec káv",
+              "lehce pokročilý znalec káv",
+              "pokročilý znalec káv",
+              "více než pokročilý znalec káv",
+              "téměř nadpokročilý znalec káv",
+              "zkušený ochutnávač",
+              "pokročilý ochutnávač",
+              "vyspělý znalec kávy",
+              "kavový kritik",
+              "kávový kritik s určitou reputací",
+              "odborník na kávu",
+              "soudce v kávových soutěžích",
+              "kávový mistr",
+              "mezinárodní mistr kávy",
+              "kávový kritik skoro s certifikací",
+              "legenda kávové kultury",
+              "nejvyšší mistr ve světě kávy a tvá slova o kávě jsou všemocná",
+              ]
+    levels = [1, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
+    for i in range(len(levels)):
+        if number < levels[i]:
+            skill = skills[i]
+            break
     uvodni_text = f"Máš již ohodnoceno {number} káv a jsi {skill}. Z toho {unique} unikátních káv. Celkem ohodnoceno {number_of_all} káv všemi uživateli"
     output = [uvodni_text, number, skill, unique]
     return output
@@ -241,7 +248,8 @@ def add():
         taste=taste,
         combination=combination,
         user_id=current_user.id,
-        name=name
+        name=name,
+        # date=datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
     )
     try:
         db.session.add(new_review)

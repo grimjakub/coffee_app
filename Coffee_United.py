@@ -183,6 +183,7 @@ def Graph_3D(db_data, user, prop):
 				cmax=5,
 				colorscale='blackbody',
 				hoverinfo='skip',
+				colorbar_tickfont_color='white',
 			)
 		)
 
@@ -197,7 +198,7 @@ def Graph_3D(db_data, user, prop):
 		zaxis=dict(range=[-5, 105], dtick=25, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)", ticks='outside', title='Water'),
 	)
 
-	fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#6f4e37")
+	fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), paper_bgcolor="#6f4e37", scene_camera_eye=dict(x=1.5, y=1.5, z=1))
 	return fig
 
 
