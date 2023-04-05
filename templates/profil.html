@@ -14,12 +14,25 @@
     </div>
     <div class="column">
         <!--odznak-->
-        <div class="badge" data-progress="{{statistiky[0]}}" style="--progress: {{statistiky[0]*3.6}}deg;">
-            {{statistiky[0]}}
-        </div>
+            <div class="badge" data-progress="{{statistiky[0]}}" style="--progress: {{statistiky[0]*3.6}}deg;">
+                {{statistiky[0]}}
+            </div>
+
         <h4>Jsi {{statistiky[2]}}</h4>
+        {% if statistiky[1]<100: %}
+        <div><button type="button" disabled>Žádost o certifikát</button> Ještě ti chybí {{100-statistiky[1]}} unikátních káv</div>
+        {% else: %}
+        <form action="/download" method="post">
+            <label for="text1">Tvé jméno: </label>
+            <input type="text" id="text1" name="text1"><br><br>
+        <button type="submit" name="download">Stáhnout certifikát</button>
+            </form>
+        {% endif %}
     </div>
 </div>
+
+
+
 
 
 {% endblock %}

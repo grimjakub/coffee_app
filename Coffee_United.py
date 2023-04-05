@@ -1,6 +1,5 @@
 import numpy as np
 import plotly.graph_objects as go
-from scipy.interpolate import CubicSpline
 from scipy.interpolate import RegularGridInterpolator
 
 
@@ -9,6 +8,17 @@ def Values(db_data, user, prop):
 	for dictionary in db_data:
 		if dictionary['user'] not in users:
 			users.append(dictionary['user'])
+
+	# Calculate unique occurrences:
+	unique = []
+	if user in users:
+		for dictionary in db_data:
+			if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] not in unique and dictionary['user'] == user:
+				unique.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+	else:
+		for dictionary in db_data:
+			if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] not in unique:
+				unique.append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
 
 	vector = [[] for _ in users]
 	for dictionary in db_data:
@@ -34,97 +44,31 @@ def Values(db_data, user, prop):
 
 	for i, element in enumerate(victor):
 		sub_vector = element[0:3]
-		sub_vector.append(sum(element[3:]) / len(element[3:]))
+		sub_vector.extend([sum(element[3:]) / len(element[3:]), len(element[3:])])
 		victor[i] = sub_vector
 
 	if user in users:
-		vector = np.array(vector[users.index(user)])
+		for vec in vector[users.index(user)]:
+			vec.append(1)
+		vector = vector[users.index(user)]
 	else:
-		vector = np.array(victor)
+		vector = victor
 
-	# print(f'Total coffees: {len(db_data)}')
-	# print(f'Total unique coffees: {len(victor)}')
-
-
-	# initialize 3D property and fullness
-	prop = [[list(np.zeros(5)) for _ in range(4)] for _ in range(5)]
-	fullness = [[list(np.zeros(5)) for _ in range(4)] for _ in range(5)]
+	# initilize 3D property and fullness
+	property_0 = [[[0, 0, 0, 0, 0] for _ in range(4)] for _ in range(5)]
+	fullness = [[[0, 0, 0, 0, 0] for _ in range(4)] for _ in range(5)]
 
 	# fill in the known data
 	for i in vector:
-		prop[int(i[0] - 1)][int(i[1] / 25 - 1)][int(i[2] / 25)] = i[3]
-		fullness[int(i[0] - 1)][int(i[1] / 25 - 1)][int(i[2] / 25)] = 1
+		property_0[int(i[0] - 1)][int(i[1] / 25 - 1)][int(i[2] / 25)] = i[3]
+		fullness[int(i[0] - 1)][int(i[1] / 25 - 1)][int(i[2] / 25)] = i[4]
 
-	for cycles in range(3):
-		# initialize all projections
-		f_coffee = [[[] for _ in range(5)] for _ in range(4)]
-		f_coffee_yz = [[[1, 2, 3, 4, 5] for _ in range(5)] for _ in range(4)]
-		f_coffee_property = [[[] for _ in range(5)] for _ in range(4)]
-		f_coffee_fullness = [[[] for _ in range(5)] for _ in range(4)]
-
-		f_coffee_water = [[[] for _ in range(5)] for _ in range(5)]
-		f_coffee_water_zx = [[[25, 50, 75, 100] for _ in range(5)] for _ in range(5)]
-		f_coffee_water_property = [[[] for _ in range(5)] for _ in range(5)]
-		f_coffee_water_fullness = [[[] for _ in range(5)] for _ in range(5)]
-
-		f_water = [[[] for _ in range(4)] for _ in range(5)]
-		f_water_xy = [[[0, 25, 50, 75, 100] for _ in range(4)] for _ in range(5)]
-		f_water_property = [[[] for _ in range(4)] for _ in range(5)]
-		f_water_fullness = [[[] for _ in range(4)] for _ in range(5)]
-
-		# fill in the projections from property and fullness
-		for x in range(5):
-			for y in range(4):
-				for z in range(5):
-					f_coffee_property[y][z].append(prop[x][y][z])
-					f_coffee_fullness[y][z].append(fullness[x][y][z])
-					f_coffee_water_property[z][x].append(prop[x][y][z])
-					f_coffee_water_fullness[z][x].append(fullness[x][y][z])
-					f_water_property[x][y].append(prop[x][y][z])
-					f_water_fullness[x][y].append(fullness[x][y][z])
-
-		for y in range(4):
-			for z in range(5):
-				if sum(f_coffee_fullness[y][z]) > 1:
-					f_coffee_yz_nonzero = [i for index, i in enumerate(f_coffee_yz[y][z]) if fullness[index][y][z]]
-					f_coffee_property_nonzero = [i for index, i in enumerate(f_coffee_property[y][z]) if fullness[index][y][z]]
-					f_coffee[y][z] = CubicSpline(f_coffee_yz_nonzero, f_coffee_property_nonzero)
-				elif sum(f_coffee_fullness[y][z]) == 1:
-					f_coffee[y][z] = lambda x: sum(f_coffee_property[y][z]) + np.array(x) * 0
-				if sum(f_coffee_fullness[y][z]) > 0:
-					f_coffee_property[y][z] = list(f_coffee[y][z](f_coffee_yz[y][z]))
-					f_coffee_fullness[y][z] = [1, 1, 1, 1, 1]
-
-		for z in range(5):
-			for x in range(5):
-				if sum(f_coffee_water_fullness[z][x]) > 1:
-					f_coffee_water_zx_nonzero = [i for index, i in enumerate(f_coffee_water_zx[z][x]) if fullness[x][index][z]]
-					f_coffee_water_property_nonzero = [i for index, i in enumerate(f_coffee_water_property[z][x]) if fullness[x][index][z]]
-					f_coffee_water[z][x] = CubicSpline(f_coffee_water_zx_nonzero, f_coffee_water_property_nonzero)
-				elif sum(f_coffee_water_fullness[z][x]) == 1:
-					f_coffee_water[z][x] = lambda y: sum(f_coffee_water_property[z][x]) + np.array(y) * 0
-				if sum(f_coffee_water_fullness[z][x]) > 0:
-					f_coffee_water_property[z][x] = list(f_coffee_water[z][x](f_coffee_water_zx[z][x]))
-					f_coffee_water_fullness[z][x] = [1, 1, 1, 1]
-
-		for x in range(5):
-			for y in range(4):
-				if sum(f_water_fullness[x][y]) > 1:
-					f_water_xy_nonzero = [i for index, i in enumerate(f_water_xy[x][y]) if fullness[x][y][index]]
-					f_water_property_nonzero = [i for index, i in enumerate(f_water_property[x][y]) if fullness[x][y][index]]
-					f_water[x][y] = CubicSpline(f_water_xy_nonzero, f_water_property_nonzero)
-				elif sum(f_water_fullness[x][y]) == 1:
-					f_water[x][y] = lambda z: sum(f_water_property[x][y]) + np.array(z) * 0
-				if sum(f_water_fullness[x][y]) > 0:
-					f_water_property[x][y] = list(f_water[x][y](f_water_xy[x][y]))
-					f_water_fullness[x][y] = [1, 1, 1, 1, 1]
-
-		for x in range(5):
-			for y in range(4):
-				for z in range(5):
-					if (f_coffee_fullness[y][z][x] + f_coffee_water_fullness[z][x][y] + f_water_fullness[x][y][z]):
-						prop[x][y][z] = (f_coffee_property[y][z][x] + f_coffee_water_property[z][x][y] + f_water_property[x][y][z]) / (f_coffee_fullness[y][z][x] + f_coffee_water_fullness[z][x][y] + f_water_fullness[x][y][z])
-						fullness[x][y][z] = 1
+	prop = property_0.copy()
+	for x_0 in range(5):
+		for y_0 in range(4):
+			for z_0 in range(5):
+				if property_0[x_0][y_0][z_0] == 0:
+					prop[x_0][y_0][z_0] = sum([fullness[x][y][z] * property_0[x][y][z] / ((x - x_0) ** 2 + (y - y_0) ** 2 + (z - z_0) ** 2) if (x != x_0 or y != y_0 or z != z_0) else 0 for x in range(5) for y in range(4) for z in range(5)]) / sum([fullness[x][y][z] / ((x - x_0) ** 2 + (y - y_0) ** 2 + (z - z_0) ** 2) if (x != x_0 or y != y_0 or z != z_0) else 0 for x in range(5) for y in range(4) for z in range(5)])
 
 	# Continuous grid
 	x_values = np.linspace(1, 5, 13)

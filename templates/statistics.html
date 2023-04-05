@@ -5,7 +5,10 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
-
+            <h4>Celkem ohodnoceno již {{number_of_all}} káv všemi uživateli</h4>
+            {% if unique_all<100 %}
+            <h4>Celkem ohodnoceno již {{unique_all}} unikátních káv všemi uživateli, ještě {{100-unique_all}} a máme celý graf</h4>
+            {% endif %}
             <h3>Ze získaných dat získáváme následující výsledky:</h3>
             <table rules=all>
                 <tr>

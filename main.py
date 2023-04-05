@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, flash
+from flask import Flask, render_template, url_for, redirect, request, flash,send_file,make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 import random
@@ -6,6 +6,11 @@ import json
 import plotly
 from datetime import datetime
 from Coffee_United import *
+# from flask import Flask, send_file, make_response,request
+from PIL import Image, ImageDraw, ImageFont
+import io
+# from datetime import datetime
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///coffee.db'
@@ -119,6 +124,7 @@ def home():
 def number_of_review(stats):
     number = stats.count()
     unique = Unique(local_data(), current_user.username)
+
     skill = "začátečník"
     all_reviews = db.session.query(Coffee)
     number_of_all = all_reviews.count()
@@ -150,7 +156,7 @@ def number_of_review(stats):
         if number < levels[i]:
             skill = skills[i]
             break
-    uvodni_text = f"Máš již ohodnoceno {number} káv a jsi {skill}. Z toho {unique} unikátních káv. Celkem ohodnoceno {number_of_all} káv všemi uživateli"
+    uvodni_text = f"Máš již ohodnoceno {number} káv a jsi {skill}." #"Celkem ohodnoceno {number_of_all} káv všemi uživateli"
     output = [uvodni_text, number, skill, unique]
     return output
 
@@ -346,7 +352,8 @@ def graph2d():
 
 @app.route('/stats')
 def stats():
-    data = make_stats()
+    # data = make_stats()
+    data = Statistics(local_data())
     taste = data["taste_max"]
     acidity = data["acidity_max"]
     bitterness = data["bitterness_max"]
@@ -358,7 +365,10 @@ def stats():
     popisky = ["Nejchutnější", "Nejvíce kyselá", "Nejvíce hořká", "Nejsilnější", "Nejméně chutná", "Nejméně kyselá",
                "Nejméně hořká", "Nejméně silná"]
     statistiky = [taste, acidity, bitterness, strong, taste_min, acidity_min, bitterness_min, strong_min]
-    return render_template("statistics.html", statistiky=statistiky, popisky=popisky, delka_seznamu=len(popisky))
+    all_reviews = db.session.query(Coffee)
+    number_of_all = all_reviews.count()
+    unique_all = Unique(local_data(), "all")
+    return render_template("statistics.html", statistiky=statistiky, popisky=popisky, delka_seznamu=len(popisky),number_of_all=number_of_all,unique_all=unique_all)
 
 
 def make_stats():
@@ -452,6 +462,47 @@ def forum():
         return redirect(url_for('forum'))
     comments = db.session.query(Comment).all()
     return render_template("forum.html", comments=comments)
+
+@app.route('/download', methods=['POST'])
+def download():
+    # Open the image file
+    image = Image.open("others/certifikat.png")
+    width, height = image.size
+    # Create a new ImageDraw object
+    draw = ImageDraw.Draw(image)
+    # Define the text you want to add to the image
+    text1 = request.form['text1']
+    text2 = datetime.now().strftime('X%d.X%m.%Y').replace('X0', 'X').replace('X', '')
+    # Define the font you want to use for the text
+    font = ImageFont.truetype("others/Allison_Script.otf", 150)
+    font2 = ImageFont.truetype("others/Allison_Script.otf", 130)
+    # Get the size of the text
+    text_width, text_height = draw.textsize(text1, font)
+    text_width2, text_height2 = draw.textsize(text2, font2)
+    # Calculate the x and y coordinates of the center of the image
+    x = (width - text_width) / 2
+    y = (height - text_height) / 2 - 30
+    x2 = (width - text_width2) / 4 * 3.7
+    y2 = (height - text_height2) / 4 * 3.6
+    # Draw the text in the center of the image
+    draw.text((x, y), text1, font=font)
+    draw.text((x2, y2), text2, font=font2, fill=(0, 0, 0), angle=45)
+    # image.save("image_with_text.png")
+
+    # Save the modified image to an in-memory buffer
+    img_buffer = io.BytesIO()
+    image.save(img_buffer, format='png')
+    img_buffer.seek(0)
+
+    # Create a response object with the in-memory buffer as the data
+    response = make_response(img_buffer.getvalue())
+
+    # Set the headers to force browser to download the file
+    response.headers.set('Content-Disposition', 'attachment', filename=f'{current_user.username}_certifikat.png')
+    response.headers.set('Content-Type', 'image/jpeg')
+    response.headers.set('Content-Length', len(img_buffer.getvalue()))
+
+    return response
 
 
 if __name__ == '__main__':
