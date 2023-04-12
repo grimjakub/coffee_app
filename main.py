@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, flash,send_file,make_response
+from flask import Flask, render_template, url_for, redirect, request, flash, send_file, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 import random
@@ -9,6 +9,7 @@ from Coffee_United import *
 # from flask import Flask, send_file, make_response,request
 from PIL import Image, ImageDraw, ImageFont
 import io
+
 # from datetime import datetime
 
 
@@ -106,18 +107,32 @@ def random_coffee_model(data, user):
         return random.choice(victor)
 
 
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def home():
     if current_user.is_active == False:
         return render_template("authentication.html",
                                current_user=current_user)
-    all_coffee = db.session.query(Coffee).filter(
+
+    all_coffee = db.session.query(Coffee)
+    coffees = all_coffee.filter(
         Coffee.name.like(current_user.username))
     users = db.session.query(User).all()
+    if request.method == "POST":
+        coffees = all_coffee
+        search_user = request.form["search_user"]
+        if search_user != "all": coffees = coffees.filter(Coffee.name.like(search_user))
+        amount_coffee_search = request.form["amount_coffee_search"]
+        if amount_coffee_search != "all": coffees = coffees.filter(Coffee.amount_coffee.like(amount_coffee_search))
+        coffee_water_search = request.form["coffee_water_search"]
+        if coffee_water_search != "all": coffees = coffees.filter(Coffee.amount_water.like(coffee_water_search))
+        clean_water_search = request.form["clean_water_search"]
+        if clean_water_search != "all": coffees = coffees.filter(Coffee.amount_clean_water.like(clean_water_search))
+
+    # moje nápovědy na pití
     coffee = random_coffee()
     stat = number_of_review(all_coffee)[0]
 
-    return render_template("index.html", coffees=all_coffee, current_user=current_user, users=users,
+    return render_template("index.html", coffees=coffees, current_user=current_user, users=users,
                            random_coffee=coffee, stat=stat)
 
 
@@ -153,10 +168,13 @@ def number_of_review(stats):
               ]
     levels = [1, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
     for i in range(len(levels)):
-        if number < levels[i]:
+        if unique < levels[i]:
             skill = skills[i]
             break
-    uvodni_text = f"Máš již ohodnoceno {number} káv a jsi {skill}." #"Celkem ohodnoceno {number_of_all} káv všemi uživateli"
+    if unique < 100:
+        uvodni_text = f"Máš již ohodnoceno {unique} různých káv a jsi {skill}."  # "Celkem ohodnoceno {number_of_all} káv všemi uživateli"
+    else:
+        uvodni_text = f"Máš již ohodnoceno {number} káv a jsi {skill}."  # "Celkem ohodnoceno {number_of_all} káv všemi uživateli"
     output = [uvodni_text, number, skill, unique]
     return output
 
@@ -368,7 +386,8 @@ def stats():
     all_reviews = db.session.query(Coffee)
     number_of_all = all_reviews.count()
     unique_all = Unique(local_data(), "all")
-    return render_template("statistics.html", statistiky=statistiky, popisky=popisky, delka_seznamu=len(popisky),number_of_all=number_of_all,unique_all=unique_all)
+    return render_template("statistics.html", statistiky=statistiky, popisky=popisky, delka_seznamu=len(popisky),
+                           number_of_all=number_of_all, unique_all=unique_all)
 
 
 def make_stats():
@@ -462,6 +481,7 @@ def forum():
         return redirect(url_for('forum'))
     comments = db.session.query(Comment).all()
     return render_template("forum.html", comments=comments)
+
 
 @app.route('/download', methods=['POST'])
 def download():

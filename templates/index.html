@@ -19,85 +19,92 @@
         <h3>{{random_coffee}}</h3>
         <h4>{{stat}}</h4>
     </tr>
-<!--    <div class="col-sm-2">-->
-<!--        <form action="/show_one" method="POST">-->
-<!--            <button class="btn btn-default" type="submit">-->
-<!--                1 <i class="fa-solid fa-mug-saucer"></i>-->
-<!--            </button>-->
-<!--        </form>-->
-<!--    </div>-->
-<!--    <div class="col-sm-2">-->
-<!--        <form action="/show_two" method="POST">-->
-<!--            <button class="btn btn-default" type="submit">-->
-<!--                2 <i class="fa-solid fa-mug-saucer"></i>-->
-<!--            </button>-->
-<!--        </form>-->
-<!--    </div>-->
-<!--    <div class="col-sm-2">-->
-<!--        <form action="/show_three" method="POST">-->
-<!--            <button class="btn btn-default" type="submit">-->
-<!--                3 <i class="fa-solid fa-mug-saucer"></i>-->
-<!--            </button>-->
-<!--        </form>-->
-<!--    </div>-->
-<!--    <div class="col-sm-2">-->
-<!--        <form action="/show_four" method="POST">-->
-<!--            <button class="btn btn-default" type="submit">-->
-<!--                4 <i class="fa-solid fa-mug-saucer"></i>-->
-<!--            </button>-->
-<!--        </form>-->
-<!--    </div>-->
-<!--    <div class="col-sm-2">-->
-<!--        <form action="/show_five" method="POST">-->
-<!--            <button class="btn btn-default" type="submit">-->
-<!--                5 <i class="fa-solid fa-mug-saucer"></i>-->
-<!--            </button>-->
-<!--        </form>-->
-<!--    </div>-->
-    <div class="col-sm-2">
-        <form action="/show_all" method="POST">
-            <button class="btn btn-default" type="submit">
-                Všechny <i class="fa-solid fa-mug-saucer"></i>
-            </button>
-        </form>
-    </div>
-    <div class="col-sm-2">
-        <form action="/show_my" method="POST">
-            <button class="btn btn-default" type="submit">
-                Moje <i class="fa-solid fa-mug-saucer"></i>
-            </button>
-        </form>
-    </div>
-    <div class="col-sm-2">
-        <form method="post" action="/search">
-            <td>
-                <select id="username" name="username">
-                    <option value="all">Všichni</option>
-                    {% for user in users%}
-                    <option value={{user.username}}>{{user.username}}</option>
-                    {%endfor%}
+    <!--    <div class="col-sm-2">-->
+    <!--        <form action="/show_one" method="POST">-->
+    <!--            <button class="btn btn-default" type="submit">-->
+    <!--                1 <i class="fa-solid fa-mug-saucer"></i>-->
+    <!--            </button>-->
+    <!--        </form>-->
+    <!--    </div>-->
+    <!--    <div class="col-sm-2">-->
+    <!--        <form action="/show_two" method="POST">-->
+    <!--            <button class="btn btn-default" type="submit">-->
+    <!--                2 <i class="fa-solid fa-mug-saucer"></i>-->
+    <!--            </button>-->
+    <!--        </form>-->
+    <!--    </div>-->
+    <!--    <div class="col-sm-2">-->
+    <!--        <form action="/show_three" method="POST">-->
+    <!--            <button class="btn btn-default" type="submit">-->
+    <!--                3 <i class="fa-solid fa-mug-saucer"></i>-->
+    <!--            </button>-->
+    <!--        </form>-->
+    <!--    </div>-->
+    <!--    <div class="col-sm-2">-->
+    <!--        <form action="/show_four" method="POST">-->
+    <!--            <button class="btn btn-default" type="submit">-->
+    <!--                4 <i class="fa-solid fa-mug-saucer"></i>-->
+    <!--            </button>-->
+    <!--        </form>-->
+    <!--    </div>-->
+    <!--    <div class="col-sm-2">-->
+    <!--        <form action="/show_five" method="POST">-->
+    <!--            <button class="btn btn-default" type="submit">-->
+    <!--                5 <i class="fa-solid fa-mug-saucer"></i>-->
+    <!--            </button>-->
+    <!--        </form>-->
+    <!--    </div>-->
 
-                </select> <i class="fa-solid fa-mug-saucer"></i>
-            </td>
-            <input type="submit" value="Filtrovat podle jména">
-        </form>
 
-    </div>
-    <div class="col-sm-2">
-        <form method="post" action="/show-amount">
-            <td>
-                <select id="amount_coffee" name="amount_coffee" class="form-select">
-                    <option value="all">Všechny</option>
-                    {% for i in range(1,6): %}
-                    <option value={{i}}>{{i}}</option>
-                    {%endfor%}
+<!--    <div class="col-sm-2">-->
+<!--        <form action="/show_all" method="POST">-->
+<!--            <button class="btn btn-default" type="submit">-->
+<!--                Všechny <i class="fa-solid fa-mug-saucer"></i>-->
+<!--            </button>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--    <div class="col-sm-2">-->
+<!--        <form action="/show_my" method="POST">-->
+<!--            <button class="btn btn-default" type="submit">-->
+<!--                Moje <i class="fa-solid fa-mug-saucer"></i>-->
+<!--            </button>-->
+<!--        </form>-->
+<!--    </div>-->
 
-                </select> <i class="fa-solid fa-mug-saucer"></i>
-            </td>
-            <input type="submit" value="Filtrovat podle množství zrnek kávy">
-        </form>
 
-    </div>
+
+    <!--    hledání     -->
+
+    <!--    <div class="col-sm-2">-->
+    <!--        <form method="post" action="/search">-->
+    <!--            <td>-->
+    <!--                <select id="username" name="username">-->
+    <!--                    <option value="all">Všichni</option>-->
+    <!--                    {% for user in users%}-->
+    <!--                    <option value={{user.username}}>{{user.username}}</option>-->
+    <!--                    {%endfor%}-->
+
+    <!--                </select> <i class="fa-solid fa-mug-saucer"></i>-->
+    <!--            </td>-->
+    <!--            <input type="submit" value="Filtrovat podle jména">-->
+    <!--        </form>-->
+
+    <!--    </div>-->
+    <!--    <div class="col-sm-2">-->
+    <!--        <form method="post" action="/show-amount">-->
+    <!--            <td>-->
+    <!--                <select id="amount_coffee" name="amount_coffee" class="form-select">-->
+    <!--                    <option value="all">Všechny</option>-->
+    <!--                    {% for i in range(1,6): %}-->
+    <!--                    <option value={{i}}>{{i}}</option>-->
+    <!--                    {%endfor%}-->
+
+    <!--                </select> <i class="fa-solid fa-mug-saucer"></i>-->
+    <!--            </td>-->
+    <!--            <input type="submit" value="Filtrovat podle množství zrnek kávy">-->
+    <!--        </form>-->
+
+    <!--    </div>-->
 
 
     <!--table of tasks-->
@@ -118,6 +125,77 @@
         </thead>
         <tbody>
         <!--            for one row-->
+
+        <tr>
+            <form method="post" action="/">
+
+                <td>
+                    <select id="search_user" name="search_user">
+                        <option value="all">Všichni</option>
+                        {% for user in users%}
+                        <option value={{user.username}}>{{user.username}}</option>
+                        {%endfor%}
+                    </select></i>
+                </td>
+                <td>
+                    <select id="amount_coffee_search" name="amount_coffee_search">
+                        <option value=all>Vše</option>
+                        <option value=1>1</option>
+                        <option value=2>2</option>
+                        <option value=3>3</option>
+                        <option value=4>4</option>
+                        <option value=5>5</option>
+                    </select>
+
+                </td>
+                <td>
+                    <select id="coffee_water_search" name="coffee_water_search">
+                        <option value=all>Vše</option>
+                        <option value=25>25</option>
+                        <option value=50>50</option>
+                        <option value=75>75</option>
+                        <option value=100>100</option>
+                    </select>
+                    <!--                    <i class="fa-solid fa-droplet"></i>-->
+                </td>
+                <td>
+                    <select id="clean_water_search" name="clean_water_search">
+                        <option value=all>Vše</option>
+                        <option value=0>0</option>
+                        <option value=25>25</option>
+                        <option value=50>50</option>
+                        <option value=75>75</option>
+                        <option value=100>100</option>
+                    </select>
+                    <!--                    <i class="fa-solid fa-droplet"></i>-->
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+
+                <td>
+
+                    <!--                <i class="fa-solid fa-circle-plus"></i></a>-->
+                </td>
+                <!--        </tr>-->
+
+                <!--        &lt;!&ndash;end of row&ndash;&gt;-->
+                <!--        <tr>-->
+                <th>
+                </th>
+                <td>
+                    <input type="submit" value="Filtrovat">
+            </form>
+            <!--                <a href="{{ url_for('add') }}"><i class="fa-solid fa-plus "></i></a>-->
+            </td>
+        </tr>
+
+
         <tr>
             <form method="post" action="/add">
                 <td></td>
@@ -235,7 +313,7 @@
             </td>
             <td>
                 {% if coffee.name==current_user.username: %}
-<!--                <a href="{{ url_for('delete', id=coffee.id) }}"><i class="fa-solid fa-circle-minus "></i></a>-->
+                <!--                <a href="{{ url_for('delete', id=coffee.id) }}"><i class="fa-solid fa-circle-minus "></i></a>-->
                 <a href="{{ url_for('edit', id=coffee.id) }}"><i class="fa-solid fa-pen-to-square "></i></a>
                 {% else: %}
                 <i class="fa-solid fa-circle-minus "></i>

@@ -131,10 +131,11 @@ def Graph_3D(db_data, user, prop):
 			)
 		)
 
-	fig.add_trace(go.Scatter3d(
-		x=[i[0] for i in vector], y=[i[1] for i in vector], z=[i[2] for i in vector],
-		mode='markers', marker=dict(color='black'), hovertemplate='Coffee: %{x}<br>Coffee water: %{y}<br>Water: %{z}<extra></extra>')
-	)
+	if len(vector) < 100:
+		fig.add_trace(go.Scatter3d(
+			x=[i[0] for i in vector], y=[i[1] for i in vector], z=[i[2] for i in vector],
+			mode='markers', marker=dict(color='black'), hovertemplate='Coffee: %{x}<br>Coffee water: %{y}<br>Water: %{z}<extra></extra>')
+		)
 
 	fig.update_scenes(
 		xaxis=dict(range=[0.8, 5.2], nticks=5, color="white", gridcolor="white", backgroundcolor="rgba(0, 0, 0, 0)", ticks='outside', title='Coffee'),
@@ -252,3 +253,99 @@ def Graph_2D_Water(db_data, user, prop):
 		)
 		fig2D_Water_list.append(fig2D_Water)
 	return fig2D_Water_list
+
+
+def Statistics(db_data):
+	output = {}
+	for proper in ['acidity', 'bitterness', 'strong', 'taste']:
+		users = []
+		for dictionary in db_data:
+			if dictionary['user'] not in users:
+				users.append(dictionary['user'])
+
+		vector = [[] for _ in users]
+		for dictionary in db_data:
+			if [dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']] in [vector[users.index(dictionary['user'])][i][0:3] for i, _ in enumerate(vector[users.index(dictionary['user'])])]:
+				i = [vector[users.index(dictionary['user'])][i][0:3] for i, _ in enumerate(vector[users.index(dictionary['user'])])].index([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water']])
+				vector[users.index(dictionary['user'])][i].append(dictionary[proper])
+			else:
+				vector[users.index(dictionary['user'])].append([dictionary['amount_coffee'], dictionary['amount_water'], dictionary['amount_clean_water'], dictionary[proper]])
+		for p, _ in enumerate(users):
+			for i, element in enumerate(vector[p]):
+				sub_vector = element[0:3]
+				sub_vector.append(sum(element[3:]) / len(element[3:]))
+				vector[p][i] = sub_vector
+
+		victor = []
+		for p, _ in enumerate(users):
+			for i, element in enumerate(vector[p]):
+				if element[0:3] in [i[0:3] for i in victor]:
+					index = [i[0:3] for i in victor].index(element[0:3])
+					victor[index].append(element[3])
+				else:
+					victor.append(element.copy())
+
+		for i, element in enumerate(victor):
+			sub_vector = element[0:3]
+			sub_vector.extend([sum(element[3:]) / len(element[3:]), len(element[3:])])
+			victor[i] = sub_vector
+
+		vector = victor
+
+		# initilize 3D property and fullness
+		property_0 = [[[0, 0, 0, 0, 0] for _ in range(4)] for _ in range(5)]
+		fullness = [[[0, 0, 0, 0, 0] for _ in range(4)] for _ in range(5)]
+
+		# fill in the known data
+		for i in vector:
+			property_0[int(i[0] - 1)][int(i[1] / 25 - 1)][int(i[2] / 25)] = i[3]
+			fullness[int(i[0] - 1)][int(i[1] / 25 - 1)][int(i[2] / 25)] = i[4]
+
+		prop = property_0.copy()
+		for x_0 in range(5):
+			for y_0 in range(4):
+				for z_0 in range(5):
+					if property_0[x_0][y_0][z_0] == 0:
+						prop[x_0][y_0][z_0] = sum([fullness[x][y][z] * property_0[x][y][z] / ((x - x_0) ** 2 + (y - y_0) ** 2 + (z - z_0) ** 2) if (x != x_0 or y != y_0 or z != z_0) else 0 for x in range(5) for y in range(4) for z in range(5)]) / sum([fullness[x][y][z] / ((x - x_0) ** 2 + (y - y_0) ** 2 + (z - z_0) ** 2) if (x != x_0 or y != y_0 or z != z_0) else 0 for x in range(5) for y in range(4) for z in range(5)])
+
+		# Continuous grid
+		x_values = np.linspace(1, 5, 13)
+		y_values = np.linspace(25, 100, 13)
+		z_values = np.linspace(0, 100, 13)
+		X, Y, Z = np.meshgrid(x_values, y_values, z_values)
+
+		# Create mgrid
+		X = np.transpose(X, [1, 0, 2])
+		Y = np.transpose(Y, [1, 0, 2])
+		Z = np.transpose(Z, [1, 0, 2])
+
+		# Grid
+		x = np.linspace(1, 5, 5)
+		y = np.linspace(25, 100, 4)
+		z = np.linspace(0, 100, 5)
+		V = prop
+		fn = RegularGridInterpolator((x, y, z), V)
+		values = fn((X, Y, Z))
+
+		tuples = list(zip(*np.where(values == np.amax(values))))
+		neighbourhood = np.sum([
+			[values[tup[0] + 1][tup[1]][tup[2]] if tup[0] != 12 else values[tup[0] - 1][tup[1]][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1] + 1][tup[2]] if tup[1] != 12 else values[tup[0]][tup[1] - 1][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1]][tup[2] + 1] if tup[2] != 12 else values[tup[0]][tup[1]][tup[2] - 1] for tup in tuples],
+			[values[tup[0] - 1][tup[1]][tup[2]] if tup[0] != 0 else values[tup[0] + 1][tup[1]][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1] - 1][tup[2]] if tup[1] != 0 else values[tup[0]][tup[1] + 1][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1]][tup[2] - 1] if tup[2] != 0 else values[tup[0]][tup[1]][tup[2] + 1] for tup in tuples]], axis=0)
+		maximum = tuples[np.where(neighbourhood == max(neighbourhood))[0][0]]
+		output[proper + '_max'] = [[round(2 * (maximum[0] / 3 + 1)) / 2, 5 * round(((maximum[1] / 4 + 1) * 25) / 5), 5 * round(25 * maximum[2] / 15), round(np.amax(values), 1)]]
+
+		tuples = list(zip(*np.where(values == np.amin(values))))
+		neighbourhood = np.sum([
+			[values[tup[0] + 1][tup[1]][tup[2]] if tup[0] != 12 else values[tup[0] - 1][tup[1]][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1] + 1][tup[2]] if tup[1] != 12 else values[tup[0]][tup[1] - 1][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1]][tup[2] + 1] if tup[2] != 12 else values[tup[0]][tup[1]][tup[2] - 1] for tup in tuples],
+			[values[tup[0] - 1][tup[1]][tup[2]] if tup[0] != 0 else values[tup[0] + 1][tup[1]][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1] - 1][tup[2]] if tup[1] != 0 else values[tup[0]][tup[1] + 1][tup[2]] for tup in tuples],
+			[values[tup[0]][tup[1]][tup[2] - 1] if tup[2] != 0 else values[tup[0]][tup[1]][tup[2] + 1] for tup in tuples]], axis=0)
+		minimum = tuples[np.where(neighbourhood == min(neighbourhood))[0][0]]
+		output[proper + '_min'] = [[round(2 * (minimum[0] / 3 + 1)) / 2, 5 * round(((minimum[1] / 4 + 1) * 25) / 5), 5 * round(25 * minimum[2] / 15), round(np.amin(values), 1)]]
+	return output
